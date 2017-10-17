@@ -246,6 +246,7 @@
 				0DE7DA141F855F6700A509C4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
