@@ -97,7 +97,6 @@ void setMonsters(string location, int m1h, int m2h, int atk)
         int m1c = 50;
         int m2r = 21;
         int m2c = 45;
-
         //m1x += randomNum();
         //m1y += randomNum();
         //m2x += randomNum();
@@ -108,7 +107,8 @@ void setMonsters(string location, int m1h, int m2h, int atk)
         }
         else
         {
-            atk += 5;
+            atk += 1;
+            topMessage = "You killed the monster.\n";
         }
         if (m2h > 0)
         {
@@ -116,7 +116,8 @@ void setMonsters(string location, int m1h, int m2h, int atk)
         }
         else
         {
-            atk += 5;
+            atk += 1;
+            topMessage = "You killed the monster.\n";
         }
 
     }
@@ -125,14 +126,28 @@ void setMonsters(string location, int m1h, int m2h, int atk)
         screen [10][13] = MAP_MONSTER;
     }
 }
-void setExit(int myR, int myC)
+void setExit(int myR, int myC, string location)
 {
-    if(screen[23][53] != MAP_PLAYER)
-       screen[23][53] = MAP_LADDER;
-    
-    screen[23][54] = MAP_LADDER;
-    screen[23][55] = MAP_LADDER;
-    screen[23][56] = MAP_LADDER;
+    //if(screen[23][53] != MAP_PLAYER)
+    if (location == "cave")
+    {
+        screen[23][53] = MAP_LADDER;
+        screen[23][54] = MAP_LADDER;
+        screen[23][55] = MAP_LADDER;
+        screen[23][56] = MAP_LADDER;
+    }
+    if (location == "upstairs")
+    {
+        screen[0][31] = MAP_LADDER;
+        screen[0][32] = MAP_LADDER;
+        screen[23][31] = MAP_LADDER;
+        screen[23][32] = MAP_LADDER;
+        screen[11][0] = MAP_LADDER;
+        screen[12][0] = MAP_LADDER;
+        screen[11][59] = MAP_LADDER;
+        screen[12][59] = MAP_LADDER;
+    }
+
 
 /*
     if (myR != 23 && myC != 53)
@@ -167,6 +182,7 @@ int main()
     int m2h = 20;
     string hasSword = "false";
     topMessage = "You find yourself in a cave.\n";
+
     
     
     while (choice != "q" && choice != "Q" && health > 0)
@@ -178,7 +194,7 @@ int main()
         setMap();
         setPlayer(myR, myC);
         setMonsters(location, m1h, m2h, atk);
-        setExit(myR, myC);
+        setExit(myR, myC, location);
         setWeapons(location, hasSword);
         
         
@@ -187,38 +203,38 @@ int main()
         cout << ">> ";
         cin >> choice;
         
-        if (choice == "a" && (screen[myR][myC-1] == MAP_EMPTY || screen[myR][myC-1] == MAP_LADDER))
+        if (choice == "a" && screen[myR][myC-1] == MAP_EMPTY)
         {
             myC -= 1;
         }
-        else if (choice == "d" && (screen[myR][myC+1] == MAP_EMPTY || screen[myR][myC+1] == MAP_LADDER))
+        else if (choice == "d" && (screen[myR][myC+1] == MAP_EMPTY))
         {
             myC += 1;
         }
-        else if (choice == "w" && (screen[myR-1][myC] == MAP_EMPTY || screen[myR-1][myC] == MAP_LADDER))
+        else if (choice == "w" && (screen[myR-1][myC] == MAP_EMPTY))
         {
             myR -= 1;
         }
-        else if (choice == "s" && (screen[myR+1][myC] == MAP_EMPTY || screen[myR+1][myC] == MAP_LADDER))
+        else if (choice == "s" && (screen[myR+1][myC] == MAP_EMPTY))
         {
             myR += 1;
         }
-        else if ((choice == "as" || choice == "sa") && (screen[myR+1][myC-1] == MAP_EMPTY || screen[myR+1][myC-1] == MAP_LADDER))
+        else if ((choice == "as" || choice == "sa") && (screen[myR+1][myC-1] == MAP_EMPTY))
         {
             myC -= 1;
             myR +=1;
         }
-        else if ((choice == "aw" || choice == "wa") && (screen[myR-1][myC-1] == MAP_EMPTY || screen[myR-1][myC-1] == MAP_LADDER))
+        else if ((choice == "aw" || choice == "wa") && (screen[myR-1][myC-1] == MAP_EMPTY))
         {
             myR -= 1;
             myC -= 1;
         }
-        else if ((choice == "sd" || choice == "ds") && (screen[myR+1][myC+1] == MAP_EMPTY || screen[myR+1][myC+1] == MAP_LADDER))
+        else if ((choice == "sd" || choice == "ds") && (screen[myR+1][myC+1] == MAP_EMPTY))
         {
             myR += 1;
             myC += 1;
         }
-        else if ((choice == "dw" || choice == "wd") && (screen[myR-1][myC+1] == MAP_EMPTY || screen[myR-1][myC+1] == MAP_LADDER))
+        else if ((choice == "dw" || choice == "wd") && (screen[myR-1][myC+1] == MAP_EMPTY))
         {
             myR -= 1;
             myC += 1;
@@ -235,18 +251,21 @@ int main()
             if (screen[myR+1][myC] == MAP_WEAPON || screen[myR+1][myC+1] == MAP_WEAPON || screen[myR+1][myC-1] == MAP_WEAPON || screen[myR][myC+1] == MAP_WEAPON || screen[myR][myC-1] == MAP_WEAPON || screen[myR-1][myC] == MAP_WEAPON || screen[myR-1][myC+1] == MAP_WEAPON || screen[myR-1][myC-2] == MAP_WEAPON)
             {
                 isNearSword = "true";
+                topMessage = "You are near a weapon.\n";
             }
             if (screen[myR+1][myC] == MAP_MONSTER || screen[myR+1][myC+1] == MAP_MONSTER || screen[myR+1][myC-1] == MAP_MONSTER || screen[myR][myC+1] == MAP_MONSTER || screen[myR][myC-1] == MAP_MONSTER || screen[myR-1][myC] == MAP_MONSTER || screen[myR-1][myC+1] == MAP_MONSTER || screen[myR-1][myC-2] == MAP_MONSTER)
             {
                 if ((myR == 20 || myR == 19 || myR == 21) && (myC == 49 || myC == 50 || myC == 51))
                 {
                     enemy1Nearby = "true";
+                    
                 }
-                if ((myR == 20 || myR == 22 || myR == 21) && (myC == 44 || myC == 45 || myC == 46))
+                else if ((myR == 20 || myR == 22 || myR == 21) && (myC == 44 || myC == 45 || myC == 46))
                 {
                     enemy2Nearby = "true";
                 }
                 health -= 7;
+                topMessage = "There is a monster nearby!\n";
             }
             if ((choice == "t" || choice == "take") && (isNearSword == "true"))
             {
@@ -264,17 +283,65 @@ int main()
                     m2h -= atk;
                 }
             }
+            if ((screen[myR+1][myC] == MAP_LADDER || screen[myR+1][myC+1] == MAP_LADDER || screen[myR+1][myC-1] == MAP_LADDER || screen[myR][myC+1] == MAP_LADDER || screen[myR][myC-1] == MAP_LADDER || screen[myR-1][myC] == MAP_LADDER|| screen[myR-1][myC+1] == MAP_LADDER || screen[myR-1][myC-2] == MAP_LADDER) && (choice == "c" || choice == "climb" || choice == "up"))
+            {
+                for(int i = 0; i < 27; i += 1)
+                {
+                    cout << "\n";
+                }
+                location = "upstairs";
+            }
         }
         if (myR == 24 && (myC == 53 || myC == 54 || myC == 55 || myC == 56))
         {
-            topMessage = "You climb the ladder into another monster infested room. Darn.";
             location = "upstairs";
         }
-        //if (location == "upstairs")
+        if (location == "upstairs")
+        {
+            topMessage = "You climb the ladder into another monster infested room. Darn.\n";
+            myR = 22;
+            if ((screen[myR+1][myC] == MAP_LADDER || screen[myR+1][myC+1] == MAP_LADDER || screen[myR+1][myC-1] == MAP_LADDER || screen[myR][myC+1] == MAP_LADDER || screen[myR][myC-1] == MAP_LADDER || screen[myR-1][myC] == MAP_LADDER|| screen[myR-1][myC+1] == MAP_LADDER || screen[myR-1][myC-2] == MAP_LADDER) && (choice == "c" || choice == "climb" || choice == "up"))
+            {
+                for(int i = 0; i < 27; i += 1)
+                {
+                    cout << "\n";
+                }
+                if (myR == 0)
+                {
+                    location = "north";
+                }
+                if (myR == 23)
+                {
+                    location = "south";
+                }
+                if (myC == 1)
+                {
+                    location = "west";
+                }
+                if (myC == 59)
+                {
+                    location = "east";
+                }
+            }
+            
+        }
+        //if (location == "beneath")
         {
             
         }
-        
+        //if (location == "north")
+        {
+            
+        }
+        //if (location == "east")
+        {
+            
+        }
+        //if (location == "south")
+        {
+            
+        }
+        //if (location == "west")
     }
     return 0;
 }
