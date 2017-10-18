@@ -46,11 +46,11 @@ void printScreen()
     }
 }
 
-void setInfo(int atk, int hp, string location)
+void setInfo(int atk, int hp, string location, int healthPotions)
 {
     stringstream buffer;
     
-    buffer << "ATK: " << atk << ", HP: " << hp << ", LOC: " << location;
+    buffer << "ATK: " << atk << ", HP: " << hp << ", LOC: " << location << ", # HEALING: " << healthPotions;
     screen[SCREEN_ROWS - 1] = buffer.str();
 }
 
@@ -182,6 +182,7 @@ int main()
     int m2h = 20;
     string hasSword = "false";
     topMessage = "You find yourself in a cave.\n";
+    int healingPotions = 5;
 
     
     
@@ -190,7 +191,7 @@ int main()
         system("clear");
         
         initScreen();
-        setInfo(atk, health, location);
+        setInfo(atk, health, location, healingPotions);
         setMap();
         setPlayer(myR, myC);
         setMonsters(location, m1h, m2h, atk);
@@ -245,6 +246,15 @@ int main()
             {
                 topMessage = "You see a shadow in the corner. There is additionally a slight shimmer infront of you.\n";
             }
+        }
+        else if (choice == "heal")
+        {
+            int healthSave = health + 20;
+            while (health < 60 && health < healthSave)
+            {
+                health += 1;
+            }
+            healingPotions -= 1;
         }
         if (location == "cave")
         {
