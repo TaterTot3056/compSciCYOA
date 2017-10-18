@@ -46,11 +46,11 @@ void printScreen()
     }
 }
 
-void setInfo(int atk, int hp, int gold, int exp, int lvl)
+void setInfo(int atk, int hp, string location)
 {
     stringstream buffer;
     
-    buffer << "ATK: " << atk << ", HP: " << hp << ", GOLD: " << gold << ", EXP: " << exp << ", LVL: " << lvl;
+    buffer << "ATK: " << atk << ", HP: " << hp << ", LOC: " << location;
     screen[SCREEN_ROWS - 1] = buffer.str();
 }
 
@@ -70,9 +70,9 @@ void setMap()
     
 }
 
-void setWeapons(string location)
+void setWeapons(string location, string hasWeapon)
 {
-    if (location == "cave")
+    if (location == "cave" && hasWeapon == "false")
         screen[7][47] = MAP_WEAPON;
 }
 
@@ -89,7 +89,7 @@ int randomNum()
     return randNum;
 }
 
-void setMonsters(string location, int m1h, int m2h)
+void setMonsters(string location, int m1h, int m2h, int atk)
 {
     if (location == "cave")
     {
@@ -102,10 +102,21 @@ void setMonsters(string location, int m1h, int m2h)
         //m1y += randomNum();
         //m2x += randomNum();
         //m2y += randomNum();
-        if (m1h > 0 && m2h > 0)
+        if (m1h > 0)
         {
             screen[m1r][m1c] = MAP_MONSTER;
+        }
+        else
+        {
+            atk += 5;
+        }
+        if (m2h > 0)
+        {
             screen[m2r][m2c] = MAP_MONSTER;
+        }
+        else
+        {
+            atk += 5;
         }
 
     }
@@ -151,21 +162,24 @@ int main()
     int atk = 3;
     string enemy1Nearby = "false";
     string enemy2Nearby = "false";
-    int health = 100;
+    int health = 60;
     int m1h = 20;
     int m2h = 20;
+    string hasSword = "false";
     topMessage = "You find yourself in a cave.\n";
     
     
-    while (choice != "q" && choice != "Q")
+    while (choice != "q" && choice != "Q" && health > 0)
     {
+        system("clear");
+        
         initScreen();
-        setInfo(15, 100, 0, 10, 1);
+        setInfo(atk, health, location);
         setMap();
         setPlayer(myR, myC);
-        setMonsters(location, m1h, m2h);
+        setMonsters(location, m1h, m2h, atk);
         setExit(myR, myC);
-        setWeapons(location);
+        setWeapons(location, hasSword);
         
         
         printScreen();
@@ -213,7 +227,7 @@ int main()
         {
             if (location == "cave")
             {
-                topMessage = "You see a shadow in the corner. There is additionally a slight shimmer infront of you.";
+                topMessage = "You see a shadow in the corner. There is additionally a slight shimmer infront of you.\n";
             }
         }
         if (location == "cave")
@@ -232,11 +246,12 @@ int main()
                 {
                     enemy2Nearby = "true";
                 }
-                health -= 5;
+                health -= 7;
             }
             if ((choice == "t" || choice == "take") && (isNearSword == "true"))
             {
                 atk = 15;
+                hasSword = "true";
             }
             if (choice == "atk" || choice == "attack")
             {
@@ -244,7 +259,7 @@ int main()
                 {
                     m1h -= atk;
                 }
-                if (enemy2Nearby == "true")
+                else if (enemy2Nearby == "true")
                 {
                     m2h -= atk;
                 }
