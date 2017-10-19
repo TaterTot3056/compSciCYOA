@@ -24,6 +24,10 @@ vector<string> screen;
 #define MAP_LADDER 'H'
 
 string topMessage = "";
+int m1r = 20;
+int m1c = 50;
+int m2r = 21;
+int m2c = 45;
 
 void initScreen()
 {
@@ -50,7 +54,7 @@ void setInfo(int atk, int hp, string location, int healthPotions)
 {
     stringstream buffer;
     
-    buffer << "ATK: " << atk << ", HP: " << hp << ", LOC: " << location << ", # HEALING: " << healthPotions;
+    buffer << "ATK: " << atk << ", HP: " << hp << ", LOC: " << location << ", POTIONS: " << healthPotions;
     screen[SCREEN_ROWS - 1] = buffer.str();
 }
 
@@ -89,14 +93,11 @@ int randomNum()
     return randNum;
 }
 
-void setMonsters(string location, int m1h, int m2h, int atk)
+void setMonsters(string location, int m1h, int m2h, int atk, int myR, int myC)
 {
     if (location == "cave")
     {
-        int m1r = 20;
-        int m1c = 50;
-        int m2r = 21;
-        int m2c = 45;
+        
         //m1x += randomNum();
         //m1y += randomNum();
         //m2x += randomNum();
@@ -107,7 +108,7 @@ void setMonsters(string location, int m1h, int m2h, int atk)
         }
         else
         {
-            atk += 1;
+            atk++;
             topMessage = "You killed the monster.\n";
         }
         if (m2h > 0)
@@ -116,10 +117,42 @@ void setMonsters(string location, int m1h, int m2h, int atk)
         }
         else
         {
-            atk += 1;
+            atk++;
             topMessage = "You killed the monster.\n";
         }
-
+        if (myR > m1r && screen[m1r+1][m1c] == MAP_EMPTY && (m1c == m2c && m1r+1 != m2r))
+        {
+            m1r++;
+        }
+        else if (myR < m1r && screen[m1r-1][m1c] == MAP_EMPTY && (m1c == m2c && m1r-1 != m2r))
+        {
+            m1r--;
+        }
+        if (myC > m1c && screen[m1r][m1c+1] == MAP_EMPTY && (m1r == m2r && m1c+1 != m2c))
+        {
+            m1c++;
+        }
+        else if (myC < m1c && screen[m1r][m1c-1] == MAP_EMPTY && (m1r == m2c && m1c-1 != m2c))
+        {
+            m1c--;
+        }
+        
+        if (myR > m2r && screen[m2r+1][m2c] == MAP_EMPTY && (m1c == m2c && m2r+1 != m1r))
+        {
+            m2r++;
+        }
+        else if (myR < m2r && screen[m2r-1][m2c] == MAP_EMPTY && (m1c == m2c && m2r-1 != m1r))
+        {
+            m2r--;
+        }
+        if (myC > m2c && screen[m2r][m2c+1] == MAP_EMPTY  && (m1r == m2r && m2c+1 != m1c))
+        {
+            m2c++;
+        }
+        else if (myC < m2c && screen[m2r][m2c-1] == MAP_EMPTY  && (m1r == m2r && m2c-1 != m1c))
+        {
+            m2c--;
+        }
     }
     if (location == "upstairs")
     {
@@ -185,7 +218,6 @@ int main()
     int healingPotions = 5;
 
     
-    
     while (choice != "q" && choice != "Q" && health > 0)
     {
         system("clear");
@@ -194,7 +226,7 @@ int main()
         setInfo(atk, health, location, healingPotions);
         setMap();
         setPlayer(myR, myC);
-        setMonsters(location, m1h, m2h, atk);
+        setMonsters(location, m1h, m2h, atk, myR, myC);
         setExit(myR, myC, location);
         setWeapons(location, hasSword);
         
@@ -223,7 +255,7 @@ int main()
         else if ((choice == "as" || choice == "sa") && (screen[myR+1][myC-1] == MAP_EMPTY))
         {
             myC -= 1;
-            myR +=1;
+            myR += 1;
         }
         else if ((choice == "aw" || choice == "wa") && (screen[myR-1][myC-1] == MAP_EMPTY))
         {
@@ -239,6 +271,46 @@ int main()
         {
             myR -= 1;
             myC += 1;
+        }
+        else if (choice == "ww")
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                if ((screen[myR-1][myC]) == MAP_EMPTY)
+                {
+                    myR--;
+                }
+            }
+        }
+        else if (choice == "aa")
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                if ((screen[myR][myC-1]) == MAP_EMPTY)
+                {
+                    myC--;
+                }
+            }
+        }
+        else if (choice == "ss")
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                if ((screen[myR+1][myC]) == MAP_EMPTY)
+                {
+                    myR++;
+                }
+            }
+        }
+        else if (choice == "dd")
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                if ((screen[myR][myC+1]) == MAP_EMPTY)
+                {
+                    myC++;
+                }
+            }
         }
         else if (choice == "l" || choice == "look" || choice == "info")
         {
@@ -265,12 +337,12 @@ int main()
             }
             if (screen[myR+1][myC] == MAP_MONSTER || screen[myR+1][myC+1] == MAP_MONSTER || screen[myR+1][myC-1] == MAP_MONSTER || screen[myR][myC+1] == MAP_MONSTER || screen[myR][myC-1] == MAP_MONSTER || screen[myR-1][myC] == MAP_MONSTER || screen[myR-1][myC+1] == MAP_MONSTER || screen[myR-1][myC-2] == MAP_MONSTER)
             {
-                if ((myR == 20 || myR == 19 || myR == 21) && (myC == 49 || myC == 50 || myC == 51))
+                if ((myR == m1r || myR-1 == m1r || myR+1 == m1r) && (myC == m1c || myC == m1c-1 || myC == m1c+1))
                 {
                     enemy1Nearby = "true";
                     
                 }
-                else if ((myR == 20 || myR == 22 || myR == 21) && (myC == 44 || myC == 45 || myC == 46))
+                else if ((myR == m2r || myR-1 == m2r || myR+1 == m2r) && (myC == m2c || myC == m2c-1 || myC == m2c+1))
                 {
                     enemy2Nearby = "true";
                 }
@@ -293,18 +365,18 @@ int main()
                     m2h -= atk;
                 }
             }
-            if ((screen[myR+1][myC] == MAP_LADDER || screen[myR+1][myC+1] == MAP_LADDER || screen[myR+1][myC-1] == MAP_LADDER || screen[myR][myC+1] == MAP_LADDER || screen[myR][myC-1] == MAP_LADDER || screen[myR-1][myC] == MAP_LADDER|| screen[myR-1][myC+1] == MAP_LADDER || screen[myR-1][myC-2] == MAP_LADDER) && (choice == "c" || choice == "climb" || choice == "up"))
+            if ((screen[myR+1][myC] == MAP_LADDER || screen[myR+1][myC+1] == MAP_LADDER || screen[myR+1][myC-1] == MAP_LADDER || screen[myR][myC+1] == MAP_LADDER || screen[myR][myC-1] == MAP_LADDER || screen[myR-1][myC] == MAP_LADDER|| screen[myR-1][myC+1] == MAP_LADDER || screen[myR-1][myC-2] == MAP_LADDER))
             {
-                for(int i = 0; i < 27; i += 1)
+                if (choice == "c" || choice == "climb" || choice == "up")
                 {
-                    cout << "\n";
-                }
+                    //for(int i = 0; i < 27; i += 1)
+                    {
+                        //cout << "\n";
+                    }
                 location = "upstairs";
+                }
+                topMessage = "You are next to a ladder.\n";
             }
-        }
-        if (myR == 24 && (myC == 53 || myC == 54 || myC == 55 || myC == 56))
-        {
-            location = "upstairs";
         }
         if (location == "upstairs")
         {
@@ -352,6 +424,10 @@ int main()
             
         }
         //if (location == "west")
+        {
+            
+        }
+        
     }
     return 0;
 }
