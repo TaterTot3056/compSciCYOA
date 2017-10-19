@@ -120,36 +120,36 @@ void setMonsters(string location, int m1h, int m2h, int atk, int myR, int myC)
             atk++;
             topMessage = "You killed the monster.\n";
         }
-        if (myR > m1r && screen[m1r+1][m1c] == MAP_EMPTY && (m1c == m2c && m1r+1 != m2r))
+        if (myR > m1r && screen[m1r+1][m1c] == MAP_EMPTY && (m1c != m2c && m1r+1 != m2r))
         {
             m1r++;
         }
-        else if (myR < m1r && screen[m1r-1][m1c] == MAP_EMPTY && (m1c == m2c && m1r-1 != m2r))
+        else if (myR < m1r && screen[m1r-1][m1c] == MAP_EMPTY && (m1c != m2c && m1r-1 != m2r))
         {
             m1r--;
         }
-        if (myC > m1c && screen[m1r][m1c+1] == MAP_EMPTY && (m1r == m2r && m1c+1 != m2c))
+        if (myC > m1c && screen[m1r][m1c+1] == MAP_EMPTY && (m1r != m2r && m1c+1 != m2c))
         {
             m1c++;
         }
-        else if (myC < m1c && screen[m1r][m1c-1] == MAP_EMPTY && (m1r == m2c && m1c-1 != m2c))
+        else if (myC < m1c && screen[m1r][m1c-1] == MAP_EMPTY && (m1r != m2c && m1c-1 != m2c))
         {
             m1c--;
         }
         
-        if (myR > m2r && screen[m2r+1][m2c] == MAP_EMPTY && (m1c == m2c && m2r+1 != m1r))
+        if (myR > m2r && screen[m2r+1][m2c] == MAP_EMPTY && (m1c != m2c && m2r+1 != m1r))
         {
             m2r++;
         }
-        else if (myR < m2r && screen[m2r-1][m2c] == MAP_EMPTY && (m1c == m2c && m2r-1 != m1r))
+        else if (myR < m2r && screen[m2r-1][m2c] == MAP_EMPTY && (m1c != m2c && m2r-1 != m1r))
         {
             m2r--;
         }
-        if (myC > m2c && screen[m2r][m2c+1] == MAP_EMPTY  && (m1r == m2r && m2c+1 != m1c))
+        if (myC > m2c && screen[m2r][m2c+1] == MAP_EMPTY  && (m1r != m2r && m2c+1 != m1c))
         {
             m2c++;
         }
-        else if (myC < m2c && screen[m2r][m2c-1] == MAP_EMPTY  && (m1r == m2r && m2c-1 != m1c))
+        else if (myC < m2c && screen[m2r][m2c-1] == MAP_EMPTY  && (m1r != m2r && m2c-1 != m1c))
         {
             m2c--;
         }
@@ -161,22 +161,29 @@ void setMonsters(string location, int m1h, int m2h, int atk, int myR, int myC)
 }
 void setExit(int myR, int myC, string location)
 {
-    //if(screen[23][53] != MAP_PLAYER)
     if (location == "cave")
     {
+        //ladders to upstairs
         screen[23][53] = MAP_LADDER;
         screen[23][54] = MAP_LADDER;
         screen[23][55] = MAP_LADDER;
         screen[23][56] = MAP_LADDER;
+        //ladder to lower level
+        screen[20][3] = MAP_LADDER;
+        
     }
     if (location == "upstairs")
     {
+        //north
         screen[0][31] = MAP_LADDER;
         screen[0][32] = MAP_LADDER;
+        //east
         screen[23][31] = MAP_LADDER;
         screen[23][32] = MAP_LADDER;
+        //south
         screen[11][0] = MAP_LADDER;
         screen[12][0] = MAP_LADDER;
+        //west
         screen[11][59] = MAP_LADDER;
         screen[12][59] = MAP_LADDER;
     }
@@ -369,11 +376,14 @@ int main()
             {
                 if (choice == "c" || choice == "climb" || choice == "up")
                 {
-                    //for(int i = 0; i < 27; i += 1)
+                    if (myR == 23)
                     {
-                        //cout << "\n";
+                        location = "upstairs";
                     }
-                location = "upstairs";
+                    else
+                    {
+                        location = "beneath";
+                    }
                 }
                 topMessage = "You are next to a ladder.\n";
             }
@@ -384,10 +394,7 @@ int main()
             myR = 22;
             if ((screen[myR+1][myC] == MAP_LADDER || screen[myR+1][myC+1] == MAP_LADDER || screen[myR+1][myC-1] == MAP_LADDER || screen[myR][myC+1] == MAP_LADDER || screen[myR][myC-1] == MAP_LADDER || screen[myR-1][myC] == MAP_LADDER|| screen[myR-1][myC+1] == MAP_LADDER || screen[myR-1][myC-2] == MAP_LADDER) && (choice == "c" || choice == "climb" || choice == "up"))
             {
-                for(int i = 0; i < 27; i += 1)
-                {
-                    cout << "\n";
-                }
+                
                 if (myR == 0)
                 {
                     location = "north";
@@ -426,6 +433,10 @@ int main()
         //if (location == "west")
         {
             
+        }
+        if (health <= 0)
+        {
+            topMessage = "You died!\n";
         }
         
     }
