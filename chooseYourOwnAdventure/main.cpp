@@ -22,12 +22,18 @@ vector<string> screen;
 #define MAP_MONSTER '~'
 #define MAP_WEAPON 'w'
 #define MAP_LADDER 'H'
+#define MAP_GOGGLES '8'
+#define MAP_AMULET '&'
 
 string topMessage = "";
 int m1r = 20;
 int m1c = 50;
 int m2r = 21;
 int m2c = 45;
+string inventory = "";
+int m3r = 10;
+int m3c = 13;
+
 
 void initScreen()
 {
@@ -48,6 +54,7 @@ void printScreen()
     {
         cout << screen[r] << endl;
     }
+    cout << "Inventory:\n" << inventory << "\n";
 }
 
 void setInfo(int atk, int hp, string location, int healthPotions)
@@ -74,10 +81,14 @@ void setMap()
     
 }
 
-void setWeapons(string location, string hasWeapon)
+void setWeapons(string location, string hasWeapon, bool hasSuperWeapon, bool hasNightVisionGoggles)
 {
     if (location == "cave" && hasWeapon == "false")
         screen[7][47] = MAP_WEAPON;
+    if (location == "beneath" && hasSuperWeapon == false  && hasNightVisionGoggles == true)
+        screen[9][20] = MAP_WEAPON;
+    if (location == "west" && hasNightVisionGoggles == false)
+        screen[3][3] = MAP_GOGGLES;
 }
 
 void setPlayer(int r, int c)
@@ -93,11 +104,11 @@ int randomNum()
     return randNum;
 }
 
-void setMonsters(string location, int m1h, int m2h, int atk, int myR, int myC)
+void setMonsters(string location, int m1h, int m2h, int atk, int myR, int myC, int m3h)
 {
     if (location == "cave")
     {
-        
+        //unused random monster movement
         //m1x += randomNum();
         //m1y += randomNum();
         //m2x += randomNum();
@@ -120,6 +131,7 @@ void setMonsters(string location, int m1h, int m2h, int atk, int myR, int myC)
             atk++;
             topMessage = "You killed the monster.\n";
         }
+        //monster movement
         if (myR > m1r && screen[m1r+1][m1c] == MAP_EMPTY && (m1c != m2c && m1r+1 != m2r))
         {
             m1r++;
@@ -156,8 +168,56 @@ void setMonsters(string location, int m1h, int m2h, int atk, int myR, int myC)
     }
     if (location == "upstairs")
     {
-        screen [10][13] = MAP_MONSTER;
+        if (m3h > 0)
+        {
+            screen[m3r][m3c] = MAP_MONSTER;
+        }
+        else
+        {
+            atk++;
+            topMessage = "You killed the monster.\n";
+        }
+        //monster movement
+        if (myR > m3r && screen[m3r+1][m3c] == MAP_EMPTY)
+        {
+            m3r++;
+        }
+        else if (myR < m3r && screen[m3r-1][m3c] == MAP_EMPTY)
+        {
+            m3r--;
+        }
+        if (myC > m3c && screen[m3r][m3c+1] == MAP_EMPTY)
+        {
+            m3c++;
+        }
+        else if (myC < m3c && screen[m3r][m3c-1] == MAP_EMPTY)
+        {
+            m3c--;
+        }
+
     }
+}
+void setInventory(int healingPotions, string hasSword, bool hasNightVisionGoggles, bool hasSuperWeapon)
+{
+    inventory = "";
+    if (healingPotions > 0)
+    {
+        inventory += healingPotions;
+        inventory += "Healing Potions, ";
+    }
+    if (hasSword == "true")
+    {
+        inventory += "Sword, ";
+    }
+    if (hasNightVisionGoggles == true)
+    {
+        inventory += "Night Vision Goggles, ";
+    }
+    if (hasSuperWeapon == true)
+    {
+        inventory += "Broadsword of the Divine, ";
+    }
+    
 }
 void setExit(int myR, int myC, string location)
 {
@@ -186,26 +246,37 @@ void setExit(int myR, int myC, string location)
         //west
         screen[11][59] = MAP_LADDER;
         screen[12][59] = MAP_LADDER;
+        //back down to cave
+        screen[23][53] = MAP_LADDER;
+        screen[23][54] = MAP_LADDER;
+        screen[23][55] = MAP_LADDER;
+        screen[23][56] = MAP_LADDER;
     }
-
-
-/*
-    if (myR != 23 && myC != 53)
+    if (location == "beneath")
     {
-    screen[23][53] = MAP_LADDER;
+        //up to cave
+        screen[20][3] = MAP_LADDER;
     }
-    if (myR != 23 && myC != 54)
+    if (location == "south")
     {
-    screen[23][54] = MAP_LADDER;
+        screen[0][31] = MAP_LADDER;
+        screen[0][32] = MAP_LADDER;
     }
-    if (myR != 23 && myC != 55)
+    if (location == "north")
     {
-    screen[23][55] = MAP_LADDER;
+        screen[23][31] = MAP_LADDER;
+        screen[23][32] = MAP_LADDER;
     }
-    if (myR != 23 && myC != 56)
+    if (location == "east")
     {
-    screen[23][56] = MAP_LADDER;
-    }*/
+        screen[11][0] = MAP_LADDER;
+        screen[12][0] = MAP_LADDER;
+    }
+    if (location == "west")
+    {
+        screen[11][59] = MAP_LADDER;
+        screen[12][59] = MAP_LADDER;
+    }
 }
 int main()
 {
@@ -223,7 +294,11 @@ int main()
     string hasSword = "false";
     topMessage = "You find yourself in a cave.\n";
     int healingPotions = 5;
-
+    bool hasNightVisionGoggles = false;
+    bool hasSuperWeapon = false;
+    bool isNearSuperSword = false;
+    int m3h = 25;
+    bool isNearGoggles = false;
     
     while (choice != "q" && choice != "Q" && health > 0)
     {
@@ -233,9 +308,10 @@ int main()
         setInfo(atk, health, location, healingPotions);
         setMap();
         setPlayer(myR, myC);
-        setMonsters(location, m1h, m2h, atk, myR, myC);
+        setMonsters(location, m1h, m2h, atk, myR, myC, m3h);
         setExit(myR, myC, location);
-        setWeapons(location, hasSword);
+        setWeapons(location, hasSword, hasSuperWeapon, hasNightVisionGoggles);
+        setInventory(healingPotions, hasSword, hasNightVisionGoggles, hasSuperWeapon);
         
         
         printScreen();
@@ -325,6 +401,21 @@ int main()
             {
                 topMessage = "You see a shadow in the corner. There is additionally a slight shimmer infront of you.\n";
             }
+            if (location == "upstairs")
+            {
+                topMessage = "There are four doors. Where do they lead?\n";
+            }
+            if (location == "beneath")
+            {
+                if (hasNightVisionGoggles == true)
+                {
+                    topMessage = "The room is barren aside from a large sword laying on the floor.\n";
+                }
+                else
+                {
+                    topMessage = "Your eyes are filled with vast darkness.\n";
+                }
+            }
         }
         else if (choice == "heal")
         {
@@ -374,9 +465,9 @@ int main()
             }
             if ((screen[myR+1][myC] == MAP_LADDER || screen[myR+1][myC+1] == MAP_LADDER || screen[myR+1][myC-1] == MAP_LADDER || screen[myR][myC+1] == MAP_LADDER || screen[myR][myC-1] == MAP_LADDER || screen[myR-1][myC] == MAP_LADDER|| screen[myR-1][myC+1] == MAP_LADDER || screen[myR-1][myC-2] == MAP_LADDER))
             {
-                if (choice == "c" || choice == "climb" || choice == "up")
+                if (choice == "c" || choice == "climb" || choice == "up" || choice == "down")
                 {
-                    if (myR == 23)
+                    if (myC == 53 || myC == 54 || myC == 55 || myC == 56)
                     {
                         location = "upstairs";
                     }
@@ -390,49 +481,130 @@ int main()
         }
         if (location == "upstairs")
         {
-            topMessage = "You climb the ladder into another monster infested room. Darn.\n";
-            myR = 22;
-            if ((screen[myR+1][myC] == MAP_LADDER || screen[myR+1][myC+1] == MAP_LADDER || screen[myR+1][myC-1] == MAP_LADDER || screen[myR][myC+1] == MAP_LADDER || screen[myR][myC-1] == MAP_LADDER || screen[myR-1][myC] == MAP_LADDER|| screen[myR-1][myC+1] == MAP_LADDER || screen[myR-1][myC-2] == MAP_LADDER) && (choice == "c" || choice == "climb" || choice == "up"))
+            topMessage = "You enter another monster infested room. Darn.\n";
+            if ((screen[myR+1][myC] == MAP_LADDER || screen[myR+1][myC+1] == MAP_LADDER || screen[myR+1][myC-1] == MAP_LADDER || screen[myR][myC+1] == MAP_LADDER || screen[myR][myC-1] == MAP_LADDER || screen[myR-1][myC] == MAP_LADDER|| screen[myR-1][myC+1] == MAP_LADDER || screen[myR-1][myC-2] == MAP_LADDER) && (choice == "c" || choice == "climb" || choice == "up" || choice == "down" || choice == "through" || choice == "open" || choice == "door"))
             {
                 
-                if (myR == 0)
+                if (myR == 1)
                 {
                     location = "north";
                 }
-                if (myR == 23)
+                else if (myR == 24)
                 {
-                    location = "south";
+                    if (myC == 11 || myC == 12)
+                    {
+                        location = "south";
+                    }
+                    else if (myC == 53 || myC == 54 || myC == 55 ||myC == 56)
+                    {
+                        location = "cave";
+                    }
+
                 }
-                if (myC == 1)
+                else if (myC == 1)
                 {
                     location = "west";
                 }
-                if (myC == 59)
+                else if (myC == 59)
                 {
                     location = "east";
                 }
             }
+            if (screen[myR+1][myC] == MAP_MONSTER || screen[myR+1][myC+1] == MAP_MONSTER || screen[myR+1][myC-1] == MAP_MONSTER || screen[myR][myC+1] == MAP_MONSTER || screen[myR][myC-1] == MAP_MONSTER || screen[myR-1][myC] == MAP_MONSTER || screen[myR-1][myC+1] == MAP_MONSTER || screen[myR-1][myC-2] == MAP_MONSTER)
+            {
+                health -= 7;
+                topMessage = "There is a monster nearby!\n";
+                if (choice == "atk" || choice == "attack")
+                {
+                    m3h -= atk;
+                }
+            }
+        }
+        if (location == "beneath")
+        {
+            topMessage = "You descend the ladder into a dark room. You cannot see anything.\n";
+            if (hasNightVisionGoggles == true)
+            {
+                if (screen[myR+1][myC] == MAP_WEAPON || screen[myR+1][myC+1] == MAP_WEAPON || screen[myR+1][myC-1] == MAP_WEAPON || screen[myR][myC+1] == MAP_WEAPON || screen[myR][myC-1] == MAP_WEAPON || screen[myR-1][myC] == MAP_WEAPON || screen[myR-1][myC+1] == MAP_WEAPON || screen[myR-1][myC-2] == MAP_WEAPON)
+                {
+                    isNearSuperSword = "true";
+                    topMessage = "You are near a powerful weapon.\n";
+                }
+                if ((choice == "t" || choice == "take") && (isNearSuperSword == true))
+                {
+                    atk += 50;
+                    topMessage = "Well done, you have found the Broadsword of the Divine. Your attack damage has been increased by 50!\n";
+                    hasSuperWeapon = "true";
+                }
+            }
+            if ((screen[myR+1][myC] == MAP_LADDER || screen[myR+1][myC+1] == MAP_LADDER || screen[myR+1][myC-1] == MAP_LADDER || screen[myR][myC+1] == MAP_LADDER || screen[myR][myC-1] == MAP_LADDER || screen[myR-1][myC] == MAP_LADDER|| screen[myR-1][myC+1] == MAP_LADDER || screen[myR-1][myC-2] == MAP_LADDER))
+            {
+                if (choice == "c" || choice == "climb" || choice == "up")
+                {
+                        location = "cave";
+                   
+                }
+                topMessage = "You are next to a ladder.\n";
+            }
+        }
+        if (location == "north")
+        {
+            if ((screen[myR+1][myC] == MAP_LADDER || screen[myR+1][myC+1] == MAP_LADDER || screen[myR+1][myC-1] == MAP_LADDER || screen[myR][myC+1] == MAP_LADDER || screen[myR][myC-1] == MAP_LADDER || screen[myR-1][myC] == MAP_LADDER|| screen[myR-1][myC+1] == MAP_LADDER || screen[myR-1][myC-2] == MAP_LADDER))
+            {
+                if (choice == "through" || choice == "door" || choice == "use" || choice == "open")
+                {
+                    location = "upstairs";
+                    myR = 1;
+                    
+                }
+                topMessage = "You are next to a ladder.\n";
+            }
+        }
+        if (location == "east")
+        {
+            if ((screen[myR+1][myC] == MAP_LADDER || screen[myR+1][myC+1] == MAP_LADDER || screen[myR+1][myC-1] == MAP_LADDER || screen[myR][myC+1] == MAP_LADDER || screen[myR][myC-1] == MAP_LADDER || screen[myR-1][myC] == MAP_LADDER|| screen[myR-1][myC+1] == MAP_LADDER || screen[myR-1][myC-2] == MAP_LADDER))
+            {
+                if (choice == "through" || choice == "door" || choice == "use" || choice == "open")
+                {
+                    location = "upstairs";
+                    myC = 59;
+                }
+                topMessage = "You are next to a ladder.\n";
+            }
             
         }
-        //if (location == "beneath")
+        if (location == "south")
         {
-            
+            if ((screen[myR+1][myC] == MAP_LADDER || screen[myR+1][myC+1] == MAP_LADDER || screen[myR+1][myC-1] == MAP_LADDER || screen[myR][myC+1] == MAP_LADDER || screen[myR][myC-1] == MAP_LADDER || screen[myR-1][myC] == MAP_LADDER|| screen[myR-1][myC+1] == MAP_LADDER || screen[myR-1][myC-2] == MAP_LADDER))
+            {
+                if (choice == "through" || choice == "door" || choice == "use" || choice == "open")
+                {
+                    location = "upstairs";
+                    myR = 23;
+                }
+                topMessage = "You are next to a ladder.\n";
+            }
         }
-        //if (location == "north")
+        if (location == "west")
         {
-            
-        }
-        //if (location == "east")
-        {
-            
-        }
-        //if (location == "south")
-        {
-            
-        }
-        //if (location == "west")
-        {
-            
+            if ((screen[myR+1][myC] == MAP_LADDER || screen[myR+1][myC+1] == MAP_LADDER || screen[myR+1][myC-1] == MAP_LADDER || screen[myR][myC+1] == MAP_LADDER || screen[myR][myC-1] == MAP_LADDER || screen[myR-1][myC] == MAP_LADDER|| screen[myR-1][myC+1] == MAP_LADDER || screen[myR-1][myC-2] == MAP_LADDER))
+            {
+                if (choice == "through" || choice == "door" || choice == "use" || choice == "open")
+                {
+                    location = "upstairs";
+                    myC = 1;
+                }
+                topMessage = "You are next to a ladder.\n";
+            }
+            if (screen[myR+1][myC] == MAP_GOGGLES || screen[myR+1][myC+1] == MAP_GOGGLES || screen[myR+1][myC-1] == MAP_GOGGLES || screen[myR][myC+1] == MAP_GOGGLES || screen[myR][myC-1] == MAP_GOGGLES || screen[myR-1][myC] == MAP_GOGGLES || screen[myR-1][myC+1] == MAP_GOGGLES || screen[myR-1][myC-2] == MAP_GOGGLES)
+            {
+                isNearGoggles = true;
+                topMessage = "You are near night vision goggles.\n";
+            }
+            if ((choice == "t" || choice == "take") && (isNearGoggles == true))
+            {
+                hasNightVisionGoggles = true;
+            }
         }
         if (health <= 0)
         {
