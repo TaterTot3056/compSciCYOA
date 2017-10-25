@@ -24,6 +24,9 @@ vector<string> screen;
 #define MAP_LADDER 'H'
 #define MAP_GOGGLES '8'
 #define MAP_AMULET '&'
+#define MAP_POTION 'P'
+#define MAP_SCROLL 'S'
+#define MAP_BOX 'B'
 
 string topMessage = "";
 int m1r = 20;
@@ -81,7 +84,7 @@ void setMap()
     
 }
 
-void setWeapons(string location, string hasWeapon, bool hasSuperWeapon, bool hasNightVisionGoggles)
+void setWeapons(string location, string hasWeapon, bool hasSuperWeapon, bool hasNightVisionGoggles, bool hasScroll)
 {
     if (location == "cave" && hasWeapon == "false")
         screen[7][47] = MAP_WEAPON;
@@ -89,6 +92,8 @@ void setWeapons(string location, string hasWeapon, bool hasSuperWeapon, bool has
         screen[9][20] = MAP_WEAPON;
     if (location == "west" && hasNightVisionGoggles == false)
         screen[3][3] = MAP_GOGGLES;
+    if (location == "south" && hasScroll == false)
+        screen[21][2] = MAP_SCROLL;
 }
 
 void setPlayer(int r, int c)
@@ -104,7 +109,7 @@ int randomNum()
     return randNum;
 }
 
-void setMonsters(string location, int m1h, int m2h, int atk, int myR, int myC, int m3h)
+void setMonsters(string location, int m1h, int m2h, int atk, int myR, int myC, int m3h, bool hasOpenedBox, bool hasAmulet)
 {
     if (location == "cave")
     {
@@ -194,10 +199,21 @@ void setMonsters(string location, int m1h, int m2h, int atk, int myR, int myC, i
         {
             m3c--;
         }
-
+    }
+    if (location == "north")
+    {
+        if (hasOpenedBox == false)
+        {
+            screen[5][31] = MAP_BOX;
+        }
+        else if (hasAmulet == false)
+        {
+            screen[5][31] = MAP_AMULET;
+        }
+        
     }
 }
-void setInventory(int healingPotions, string hasSword, bool hasNightVisionGoggles, bool hasSuperWeapon)
+void setInventory(int healingPotions, string hasSword, bool hasNightVisionGoggles, bool hasSuperWeapon, bool hasScroll, bool hasAmulet)
 {
     inventory = "";
     if (healingPotions > 0)
@@ -217,7 +233,10 @@ void setInventory(int healingPotions, string hasSword, bool hasNightVisionGoggle
     {
         inventory += "Broadsword of the Divine, ";
     }
-    
+    if (hasScroll == true)
+        inventory += "Scroll, ";
+    if (hasAmulet == true)
+        inventory += "Amulet, ";
 }
 void setExit(int myR, int myC, string location)
 {
@@ -299,6 +318,11 @@ int main()
     bool isNearSuperSword = false;
     int m3h = 25;
     bool isNearGoggles = false;
+    bool hasScroll = false;
+    bool isNearScroll = false;
+    bool isNearBox = false;
+    bool hasAmulet = false;
+    bool hasOpenedBox = false;
     
     while (choice != "q" && choice != "Q" && health > 0)
     {
@@ -308,10 +332,10 @@ int main()
         setInfo(atk, health, location, healingPotions);
         setMap();
         setPlayer(myR, myC);
-        setMonsters(location, m1h, m2h, atk, myR, myC, m3h);
+        setMonsters(location, m1h, m2h, atk, myR, myC, m3h, hasOpenedBox, hasAmulet);
         setExit(myR, myC, location);
-        setWeapons(location, hasSword, hasSuperWeapon, hasNightVisionGoggles);
-        setInventory(healingPotions, hasSword, hasNightVisionGoggles, hasSuperWeapon);
+        setWeapons(location, hasSword, hasSuperWeapon, hasNightVisionGoggles, hasScroll);
+        setInventory(healingPotions, hasSword, hasNightVisionGoggles, hasSuperWeapon, hasScroll, hasAmulet);
         
         
         printScreen();
@@ -426,6 +450,7 @@ int main()
             }
             healingPotions -= 1;
         }
+        
         if (location == "cave")
         {
             if (screen[myR+1][myC] == MAP_WEAPON || screen[myR+1][myC+1] == MAP_WEAPON || screen[myR+1][myC-1] == MAP_WEAPON || screen[myR][myC+1] == MAP_WEAPON || screen[myR][myC-1] == MAP_WEAPON || screen[myR-1][myC] == MAP_WEAPON || screen[myR-1][myC+1] == MAP_WEAPON || screen[myR-1][myC-2] == MAP_WEAPON)
@@ -449,7 +474,7 @@ int main()
             }
             if ((choice == "t" || choice == "take") && (isNearSword == "true"))
             {
-                atk = 15;
+                atk += 15;
                 hasSword = "true";
             }
             if (choice == "atk" || choice == "attack")
@@ -479,7 +504,7 @@ int main()
                 topMessage = "You are next to a ladder.\n";
             }
         }
-        if (location == "upstairs")
+        else if (location == "upstairs")
         {
             topMessage = "You enter another monster infested room. Darn.\n";
             if ((screen[myR+1][myC] == MAP_LADDER || screen[myR+1][myC+1] == MAP_LADDER || screen[myR+1][myC-1] == MAP_LADDER || screen[myR][myC+1] == MAP_LADDER || screen[myR][myC-1] == MAP_LADDER || screen[myR-1][myC] == MAP_LADDER|| screen[myR-1][myC+1] == MAP_LADDER || screen[myR-1][myC-2] == MAP_LADDER) && (choice == "c" || choice == "climb" || choice == "up" || choice == "down" || choice == "through" || choice == "open" || choice == "door"))
@@ -487,12 +512,14 @@ int main()
                 
                 if (myR == 1)
                 {
+                    myR = 22;
                     location = "north";
                 }
-                else if (myR == 24)
+                else if (myR == 22)
                 {
-                    if (myC == 11 || myC == 12)
+                    if (myC == 31 || myC == 32)
                     {
+                        myR = 1;
                         location = "south";
                     }
                     else if (myC == 53 || myC == 54 || myC == 55 ||myC == 56)
@@ -503,10 +530,12 @@ int main()
                 }
                 else if (myC == 1)
                 {
+                    myC = 58;
                     location = "west";
                 }
-                else if (myC == 59)
+                else if (myC == 58)
                 {
+                    myC = 1;
                     location = "east";
                 }
             }
@@ -520,7 +549,7 @@ int main()
                 }
             }
         }
-        if (location == "beneath")
+        else if (location == "beneath")
         {
             topMessage = "You descend the ladder into a dark room. You cannot see anything.\n";
             if (hasNightVisionGoggles == true)
@@ -547,7 +576,7 @@ int main()
                 topMessage = "You are next to a ladder.\n";
             }
         }
-        if (location == "north")
+        else if (location == "north")
         {
             if ((screen[myR+1][myC] == MAP_LADDER || screen[myR+1][myC+1] == MAP_LADDER || screen[myR+1][myC-1] == MAP_LADDER || screen[myR][myC+1] == MAP_LADDER || screen[myR][myC-1] == MAP_LADDER || screen[myR-1][myC] == MAP_LADDER|| screen[myR-1][myC+1] == MAP_LADDER || screen[myR-1][myC-2] == MAP_LADDER))
             {
@@ -559,33 +588,62 @@ int main()
                 }
                 topMessage = "You are next to a ladder.\n";
             }
+            if (screen[myR+1][myC] == MAP_BOX || screen[myR+1][myC+1] == MAP_BOX || screen[myR+1][myC-1] == MAP_BOX || screen[myR][myC+1] == MAP_BOX || screen[myR][myC-1] == MAP_BOX || screen[myR-1][myC] == MAP_BOX || screen[myR-1][myC+1] == MAP_BOX || screen[myR-1][myC-2] == MAP_BOX)
+            {
+                isNearBox = true;
+                topMessage = "You are near a password protected box. Enter the password to unlock it.\n";
+            }
+            if ((choice == "Purple56") && (isNearBox == true))
+            {
+                hasOpenedBox = true;
+                topMessage = "An amulet has appeared on the ground. Maybe it has a function?\n";
+            }
+            if (screen[myR+1][myC] == MAP_AMULET || screen[myR+1][myC+1] == MAP_AMULET || screen[myR+1][myC-1] == MAP_AMULET || screen[myR][myC+1] == MAP_AMULET || screen[myR][myC-1] == MAP_AMULET || screen[myR-1][myC] == MAP_AMULET || screen[myR-1][myC+1] == MAP_AMULET || screen[myR-1][myC-2] == MAP_AMULET)
+            {
+                topMessage = "You are near an amulet.\n";
+                if (choice == "take" || choice == "t")
+                {
+                    topMessage = "You have taken the amulet.\n";
+                    hasAmulet = true;
+                }
+            }
         }
-        if (location == "east")
+        else if (location == "east")
         {
             if ((screen[myR+1][myC] == MAP_LADDER || screen[myR+1][myC+1] == MAP_LADDER || screen[myR+1][myC-1] == MAP_LADDER || screen[myR][myC+1] == MAP_LADDER || screen[myR][myC-1] == MAP_LADDER || screen[myR-1][myC] == MAP_LADDER|| screen[myR-1][myC+1] == MAP_LADDER || screen[myR-1][myC-2] == MAP_LADDER))
             {
                 if (choice == "through" || choice == "door" || choice == "use" || choice == "open")
                 {
                     location = "upstairs";
-                    myC = 59;
+                    myC = 58;
                 }
                 topMessage = "You are next to a ladder.\n";
             }
             
         }
-        if (location == "south")
+        else if (location == "south")
         {
             if ((screen[myR+1][myC] == MAP_LADDER || screen[myR+1][myC+1] == MAP_LADDER || screen[myR+1][myC-1] == MAP_LADDER || screen[myR][myC+1] == MAP_LADDER || screen[myR][myC-1] == MAP_LADDER || screen[myR-1][myC] == MAP_LADDER|| screen[myR-1][myC+1] == MAP_LADDER || screen[myR-1][myC-2] == MAP_LADDER))
             {
                 if (choice == "through" || choice == "door" || choice == "use" || choice == "open")
                 {
                     location = "upstairs";
-                    myR = 23;
+                    myR = 22;
                 }
                 topMessage = "You are next to a ladder.\n";
             }
+            if (screen[myR+1][myC] == MAP_SCROLL || screen[myR+1][myC+1] == MAP_SCROLL || screen[myR+1][myC-1] == MAP_SCROLL || screen[myR][myC+1] == MAP_SCROLL || screen[myR][myC-1] == MAP_SCROLL || screen[myR-1][myC] == MAP_SCROLL || screen[myR-1][myC+1] == MAP_SCROLL || screen[myR-1][myC-2] == MAP_SCROLL)
+            {
+                isNearScroll = true;
+                topMessage = "You are near an important scroll.\n";
+            }
+            if ((choice == "t" || choice == "take") && (isNearScroll == true))
+            {
+                hasScroll = true;
+                topMessage = "The password is Purple56.\n";
+            }
         }
-        if (location == "west")
+        else if (location == "west")
         {
             if ((screen[myR+1][myC] == MAP_LADDER || screen[myR+1][myC+1] == MAP_LADDER || screen[myR+1][myC-1] == MAP_LADDER || screen[myR][myC+1] == MAP_LADDER || screen[myR][myC-1] == MAP_LADDER || screen[myR-1][myC] == MAP_LADDER|| screen[myR-1][myC+1] == MAP_LADDER || screen[myR-1][myC-2] == MAP_LADDER))
             {
