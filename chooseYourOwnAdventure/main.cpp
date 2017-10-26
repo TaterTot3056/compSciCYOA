@@ -272,6 +272,15 @@ void setMonsters(string location, int m1h, int m2h, int atk, int myR, int myC, i
             atk++;
             topMessage = "You killed the monster.\n";
         }
+        if (bossHp > 0)
+        {
+            screen[bossR][bossC] = MAP_MONSTER;
+        }
+        else
+        {
+            atk++;
+            topMessage = "You killed the boss. Congrats! You can now use the door in the back of the room.\n";
+        }
         //monster 1 movement
         if (myR > em1r && screen[em1r+1][em1c] == MAP_EMPTY)
         {
@@ -721,9 +730,9 @@ int main()
         }
         else if (location == "beneath")
         {
-            topMessage = "You descend the ladder into a dark room. You cannot see anything.\n";
             if (hasNightVisionGoggles == true)
             {
+                topMessage = "You can now see in the darkness.\n";
                 if (screen[myR+1][myC] == MAP_WEAPON || screen[myR+1][myC+1] == MAP_WEAPON || screen[myR+1][myC-1] == MAP_WEAPON || screen[myR][myC+1] == MAP_WEAPON || screen[myR][myC-1] == MAP_WEAPON || screen[myR-1][myC] == MAP_WEAPON || screen[myR-1][myC+1] == MAP_WEAPON || screen[myR-1][myC-2] == MAP_WEAPON)
                 {
                     isNearSuperSword = "true";
@@ -736,6 +745,8 @@ int main()
                     hasSuperWeapon = "true";
                 }
             }
+            else
+                topMessage = "You descend the ladder into a dark room. You cannot see anything.\n";
             if ((screen[myR+1][myC] == MAP_LADDER || screen[myR+1][myC+1] == MAP_LADDER || screen[myR+1][myC-1] == MAP_LADDER || screen[myR][myC+1] == MAP_LADDER || screen[myR][myC-1] == MAP_LADDER || screen[myR-1][myC] == MAP_LADDER|| screen[myR-1][myC+1] == MAP_LADDER || screen[myR-1][myC-2] == MAP_LADDER))
             {
                 if (choice == "c" || choice == "climb" || choice == "up")
