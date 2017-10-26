@@ -19,7 +19,7 @@ vector<string> screen;
 #define MAP_VWALL '|'
 #define MAP_HWALL '='
 #define MAP_PLAYER '@'
-#define MAP_MONSTER '~'
+#define MAP_MONSTER 'm'
 #define MAP_WEAPON 'w'
 #define MAP_LADDER 'H'
 #define MAP_GOGGLES '8'
@@ -27,6 +27,7 @@ vector<string> screen;
 #define MAP_POTION 'P'
 #define MAP_SCROLL 'S'
 #define MAP_BOX 'B'
+#define MAP_BOSS 'M'
 
 string topMessage = "";
 int m1r = 20;
@@ -36,7 +37,18 @@ int m2c = 45;
 string inventory = "";
 int m3r = 10;
 int m3c = 13;
-
+int em1r = 9;
+int em1c = 22;
+int em2r = 15;
+int em2c = 7;
+int em3r = 19;
+int em3c = 50;
+int em4r = 5;
+int em4c = 30;
+int em5r = 20;
+int em5c = 13;
+int bossR = 11;
+int bossC = 30;
 
 void initScreen()
 {
@@ -109,7 +121,7 @@ int randomNum()
     return randNum;
 }
 
-void setMonsters(string location, int m1h, int m2h, int atk, int myR, int myC, int m3h, bool hasOpenedBox, bool hasAmulet)
+void setMonsters(string location, int m1h, int m2h, int atk, int myR, int myC, int m3h, bool hasOpenedBox, bool hasAmulet, int em1h, int em2h, int em3h, int em4h, int em5h, int bossHp)
 {
     if (location == "cave")
     {
@@ -199,6 +211,7 @@ void setMonsters(string location, int m1h, int m2h, int atk, int myR, int myC, i
         {
             m3c--;
         }
+        
     }
     if (location == "north")
     {
@@ -209,6 +222,157 @@ void setMonsters(string location, int m1h, int m2h, int atk, int myR, int myC, i
         else if (hasAmulet == false)
         {
             screen[5][31] = MAP_AMULET;
+        }
+    }
+    if (location == "east")
+    {
+        //set monsters
+        if (em1h > 0)
+        {
+            screen[em1r][em1c] = MAP_MONSTER;
+        }
+        else
+        {
+            atk++;
+            topMessage = "You killed the monster.\n";
+        }
+        if (em2h > 0)
+        {
+            screen[em2r][em2c] = MAP_MONSTER;
+        }
+        else
+        {
+            atk++;
+            topMessage = "You killed the monster.\n";
+        }
+        if (em3h > 0)
+        {
+            screen[em3r][em3c] = MAP_MONSTER;
+        }
+        else
+        {
+            atk++;
+            topMessage = "You killed the monster.\n";
+        }
+        if (em4h > 0)
+        {
+            screen[em4r][em4c] = MAP_MONSTER;
+        }
+        else
+        {
+            atk++;
+            topMessage = "You killed the monster.\n";
+        }
+        if (em5h > 0)
+        {
+            screen[em5r][em5c] = MAP_MONSTER;
+        }
+        else
+        {
+            atk++;
+            topMessage = "You killed the monster.\n";
+        }
+        //monster 1 movement
+        if (myR > em1r && screen[em1r+1][em1c] == MAP_EMPTY)
+        {
+            em1r++;
+        }
+        else if (myR < em1r && screen[em1r-1][em1c] == MAP_EMPTY)
+        {
+            em1r--;
+        }
+        if (myC > em1c && screen[em1r][em1c+1] == MAP_EMPTY)
+        {
+            em1c++;
+        }
+        else if (myC < em1c && screen[em1r][em1c-1] == MAP_EMPTY)
+        {
+            em1c--;
+        }
+        //monster 2 movement
+        if (myR > em2r && screen[em2r+1][em2c] == MAP_EMPTY)
+        {
+            em2r++;
+        }
+        else if (myR < em2r && screen[em2r-1][em2c] == MAP_EMPTY)
+        {
+            em1r--;
+        }
+        if (myC > em2c && screen[em2r][em2c+1] == MAP_EMPTY)
+        {
+            em2c++;
+        }
+        else if (myC < em2c && screen[em2r][em2c-1] == MAP_EMPTY)
+        {
+            em2c--;
+        }
+        //monster 3 movement
+        if (myR > em3r && screen[em3r+1][em3c] == MAP_EMPTY)
+        {
+            em1r++;
+        }
+        else if (myR < em3r && screen[em3r-1][em3c] == MAP_EMPTY)
+        {
+            em3r--;
+        }
+        if (myC > em3c && screen[em3r][em3c+1] == MAP_EMPTY)
+        {
+            em3c++;
+        }
+        else if (myC < em3c && screen[em3r][em3c-1] == MAP_EMPTY)
+        {
+            em3c--;
+        }
+        //monster 4 movement
+        if (myR > em4r && screen[em4r+1][em4c] == MAP_EMPTY)
+        {
+            em4r++;
+        }
+        else if (myR < em4r && screen[em4r-1][em4c] == MAP_EMPTY)
+        {
+            em4r--;
+        }
+        if (myC > em4c && screen[em4r][em4c+1] == MAP_EMPTY)
+        {
+            em4c++;
+        }
+        else if (myC < em4c && screen[em4r][em4c-1] == MAP_EMPTY)
+        {
+            em4c--;
+        }
+        //monster 5 movement
+        if (myR > em5r && screen[em5r+1][em5c] == MAP_EMPTY)
+        {
+            em5r++;
+        }
+        else if (myR < em5r && screen[em5r-1][em5c] == MAP_EMPTY)
+        {
+            em5r--;
+        }
+        if (myC > em5c && screen[em5r][em5c+1] == MAP_EMPTY)
+        {
+            em5c++;
+        }
+        else if (myC < em5c && screen[em5r][em5c-1] == MAP_EMPTY)
+        {
+            em5c--;
+        }
+        //monster boss movement
+        if (myR > bossR && screen[bossR+1][bossC] == MAP_EMPTY)
+        {
+            bossR++;
+        }
+        else if (myR < bossR && screen[bossR-1][bossC] == MAP_EMPTY)
+        {
+            bossR--;
+        }
+        if (myC > bossC && screen[bossR][bossC+1] == MAP_EMPTY)
+        {
+            bossC++;
+        }
+        else if (myC < bossC && screen[bossR][bossC-1] == MAP_EMPTY)
+        {
+            bossC--;
         }
         
     }
@@ -323,6 +487,12 @@ int main()
     bool isNearBox = false;
     bool hasAmulet = false;
     bool hasOpenedBox = false;
+    int em1h = 20;
+    int em2h = 25;
+    int em3h = 22;
+    int em4h = 33;
+    int em5h = 42;
+    int bossHp = 300;
     
     while (choice != "q" && choice != "Q" && health > 0)
     {
@@ -332,7 +502,7 @@ int main()
         setInfo(atk, health, location, healingPotions);
         setMap();
         setPlayer(myR, myC);
-        setMonsters(location, m1h, m2h, atk, myR, myC, m3h, hasOpenedBox, hasAmulet);
+        setMonsters(location, m1h, m2h, atk, myR, myC, m3h, hasOpenedBox, hasAmulet, em1h, em2h, em3h, em4h, em5h, bossHp);
         setExit(myR, myC, location);
         setWeapons(location, hasSword, hasSuperWeapon, hasNightVisionGoggles, hasScroll);
         setInventory(healingPotions, hasSword, hasNightVisionGoggles, hasSuperWeapon, hasScroll, hasAmulet);
